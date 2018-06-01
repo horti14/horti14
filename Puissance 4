@@ -1,0 +1,132 @@
+# horti14
+#-------------------------------------------------------------------------------------------------------------------
+#Mise en place des variables, définition de la taille de la grilles, des jetons, de l'animation pour faire tomber les jetons
+#-------------------------------------------------------------------------------------------------------------------
+def setup () :
+   global tailleCase 
+   global nbLigne 
+   global nbColonne 
+   global tourjoueur
+   global jetons
+   global victoire
+   textSize(60) 
+   victoire = 0
+   jetons = [[0 for i in range(6)] for i in range(6)]
+   tailleCase = 20
+   nbLigne = 6
+   nbColonne = 6
+   tourjoueur=1
+   size (800,800)
+   tailleCase =800/nbLigne
+   dessinePlateau ()
+   frameRate(10)
+#-------------------------------------------------------------------------------------------------------------------
+#Mise en place de l'apparition des jetons, mise en place de l'impossibilité de mettre 2 jetons dans la meme case
+#-------------------------------------------------------------------------------------------------------------------
+def dessinePlateau () :
+   global jetons
+   background(0, 0, 200)
+   for pas in range (nbLigne+1) :
+       line (0,tailleCase*pas, 800,tailleCase*pas)
+       line (tailleCase*pas, 0, tailleCase*pas,1000)
+   for i in range(6):
+       for j in range(6):
+           if jetons[i][j]!=0:
+               if jetons[i][j]==1:
+                   fill (255,255,0)
+               elif jetons[i][j]==2:
+                   fill (255,0,0)
+               ellipse (tailleCase*(i ) + tailleCase/2, tailleCase*(j ) + tailleCase/2, tailleCase,tailleCase)
+#-------------------------------------------------------------------------------------------------------------------
+#Définition de la fonction Mouse qui va permettre l'apparition d'un jeton lorsque l'on clique sur le plateau
+#-------------------------------------------------------------------------------------------------------------------
+def determineColonneCliquee (mX, mY) :
+  Colonne= mouseX//tailleCase
+  Ligne= mouseY//tailleCase
+  if Colonne>=0 and Colonne <nbColonne and Ligne == 0:
+      return Colonne 
+  else:
+      return -1
+def determineLigneColonne (mX, mY) :
+  Colonne= mouseX//tailleCase
+  Ligne= mouseY//tailleCase
+  if Colonne>=0 and Colonne <nbColonne and Ligne>=0 and Ligne <nbLigne :
+      return [Ligne,Colonne]
+  else:
+      return [-1,-1]
+
+
+#-------------------------------------------------------------------------------------------------------------------
+#Apparition de draw, définition de la victoire et de l'apparition du gagnant en fin de jeu
+#-------------------------------------------------------------------------------------------------------------------
+def draw () :
+   dessinePlateau()
+   actualisePlateau()
+   global victoire
+   victoire = testeSiVictoire()
+   if victoire==1: 
+       print("Jaunes gagnants")
+       fill(255,255,0)
+       text("Victoire des jaunes",150,100)
+   elif victoire==2:
+       print("Rouges gagnants")
+       fill(255,0,0)
+       text("Victoire des rouges",150,100)
+
+
+#-------------------------------------------------------------------------------------------------------------------
+#Permet l'alternance des joueurs, et le changement de couleur à chaque coup joué
+#-------------------------------------------------------------------------------------------------------------------
+def mousePressed () :
+   global jetons
+   global tourjoueur
+   global victoire
+   if victoire==0:
+       #print (mouseX//tailleCase, mouseY// tailleCase)
+       Colonne= determineColonneCliquee (mouseX, mouseY) 
+       #print Colonne
+       ligne, colonne = determineLigneColonne  (mouseX, mouseY) 
+       #print ("ligne",ligne,"colonne",colonne)
+       if ligne != -1 and jetons[colonne][ligne]== 0:
+           if tourjoueur ==1:
+               tourjoueur=2
+           else:tourjoueur=1
+           jetons[colonne][ligne]=tourjoueur
+
+
+#-------------------------------------------------------------------------------------------------------------------
+#Verification de la victoire selon les lignes, les colonnes ansi que les diagonales pour arrêter le jeu lorqu'il y a un gagnant
+#-------------------------------------------------------------------------------------------------------------------   
+def testeSiVictoire():
+   global jetons
+   for i in range(6):
+       for j in range(6):
+           if jetons[i][j]!=0:
+               jetonFixe = True
+               if j!=5:
+                   if jetons[i][j+1]==0:
+                       jetonFixe =False
+               if jetonFixe:
+                   if j in range(3):
+                       if jetons[i][j]==jetons[i][j+1]==jetons[i][j+2]==jetons[i][j+3]:
+                           return jetons[i][j]
+                   if i in range(3):
+                       if jetons[i][j]==jetons[i+1][j]==jetons[i+2][j]==jetons[i+3][j]:
+                           return jetons[i][j]
+                   if i in range(3) and j in range(3):
+                       if jetons[i][j]==jetons[i+1][j+1]==jetons[i+2][j+2]==jetons[i+3][j+3]:
+                           return jetons[i][j]
+                   if i in range(3,7) and j in range(3):
+                       if jetons[i][j]==jetons[i-1][j+1]==jetons[i-2][j+2]==jetons[i-3][j+3]:
+                           return jetons[i][j]
+   return 0
+
+#-------------------------------------------------------------------------------------------------------------------
+#Empeche à un jeton de recouvrir un autre
+#-------------------------------------------------------------------------------------------------------------------
+def actualisePlateau():
+   global jetons
+   for i in range(6):
+       for j in range(1,6):
+           if jetons[i][-j]==0:
+               jetons[i][-j],jetons[i][-j-1]=jetons[i][-j-1],jetons[i][-j]
