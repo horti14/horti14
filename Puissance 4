@@ -122,7 +122,7 @@ def testeSiVictoire():
    return 0
 
 #-------------------------------------------------------------------------------------------------------------------
-#Empeche à un jeton de recouvrir un autre
+#Permet l'animation et de faire tomber le jeton le plus bas possibe sans en recouvrir un autre
 #-------------------------------------------------------------------------------------------------------------------
 def actualisePlateau():
    global jetons
